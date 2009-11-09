@@ -216,10 +216,6 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			hasBreeze = perc.breeze;
 			hasGold = perc.glitter;
 		}
-		
-		public String toString() {
-			return "Cell: " + position.x + ":" + position.y;
-		}
 	}
 
 	static class Position implements Comparable<Position> {
