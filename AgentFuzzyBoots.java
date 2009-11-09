@@ -247,6 +247,12 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			this.x = x;
 			this.y = y;
 		}
+		
+		public Integer distanceTo(Position other) {
+			int x = this.x-other.x;
+			int y = this.y-other.y;
+			return x*x+y*y;
+		}
 
 		@Override
 		public int compareTo(Position o) {
@@ -286,13 +292,8 @@ public class AgentFuzzyBoots extends AbstractAgent {
 					nextTarget = Collections.min(nodes, new Comparator<InternalCell>() {
 						@Override
 						public int compare(InternalCell o1, InternalCell o2) {
-							return distance(agent.currentCell, o1).compareTo(distance(agent.currentCell, o2));
-						}
-						
-						private Integer distance(InternalCell c1, InternalCell c2) {
-							int x = c1.position.x - c2.position.x;
-							int y = c1.position.y - c2.position.y;
-							return x*x + y*y;
+							return agent.currentCell.position.distanceTo(o1.position).compareTo(
+									agent.currentCell.position.distanceTo(o2.position));
 						}
 					});
 					System.out.println("Found legal target: "
