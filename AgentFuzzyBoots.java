@@ -127,25 +127,25 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		for (InternalCell cur : path) {
 			if (cur.position.x < last.position.x) {
 				for (int i = 0; i < Directions.getRequiredLeftTurns(
-						orientation, Directions.WEST); ++i) {
+						orientation, Directions.WEST)%4; ++i) {
 					ret.add(Action.TURN_LEFT);
 					orientation = Directions.WEST;
 				}
 			} else if (cur.position.x > last.position.x) {
 				for (int i = 0; i < Directions.getRequiredRightTurns(
-						orientation, Directions.EAST); ++i) {
+						orientation, Directions.EAST)%4; ++i) {
 					ret.add(Action.TURN_RIGHT);
 					orientation = Directions.EAST;
 				}
 			} else if (cur.position.y < last.position.y) {
 				for (int i = 0; i < Directions.getRequiredRightTurns(
-						orientation, Directions.SOUTH); ++i) {
+						orientation, Directions.SOUTH)%4; ++i) {
 					ret.add(Action.TURN_RIGHT);
 					orientation = Directions.SOUTH;
 				}
 			} else if (cur.position.y > last.position.y) {
 				for (int i = 0; i < Directions.getRequiredLeftTurns(
-						orientation, Directions.NORTH); ++i) {
+						orientation, Directions.NORTH)%4; ++i) {
 					ret.add(Action.TURN_LEFT);
 					orientation = Directions.NORTH;
 				}
