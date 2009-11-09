@@ -320,6 +320,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 						nextTarget, agent);
 				if (path != null) break;
 			}
+			if (path == null) throw new RuntimeException("None of the targets was reachable!");
 			return getActionSequenceForPath(path, agent);
 		}
 
