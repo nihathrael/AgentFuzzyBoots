@@ -175,7 +175,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		 * @return
 		 */
 		public int getDangerEstimate(AgentFuzzyBoots agent) {
-			System.out.println("Danger Estimate " + toString() + ": " + (hasWumpus(agent) + hasPit(agent)));
+			//System.out.println("Danger Estimate " + toString() + ": " + (hasWumpus(agent) + hasPit(agent)));
 			return (hasWumpus(agent) + hasPit(agent));
 		}
 		
@@ -313,9 +313,9 @@ public class AgentFuzzyBoots extends AbstractAgent {
 				if (path != null) break;
 			}
 			if (path != null) {
-				System.out.println("Found legal target(s). First: "
-						+ targets.get(0).position.x + ":"
-						+ targets.get(0).position.y);
+				//System.out.println("Found legal target(s). First: "
+						//+ targets.get(0).position.x + ":"
+						//+ targets.get(0).position.y);
 				return true;
 			} else {
 				return false;
@@ -364,8 +364,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 	public static ArrayList<InternalCell> calculateRoute(InternalCell from,
 			InternalCell to, AgentFuzzyBoots agent) {
-		System.out.println("=========================");
-		System.out.printf("Looking for path from %s to %s\n", from.toString(), to.toString());
+		//System.out.printf("Looking for path from %s to %s\n", from.toString(), to.toString());
 		ArrayList<InternalCell> ret = new ArrayList<InternalCell>();
 		final HashMap<InternalCell, Integer> distance = new HashMap<InternalCell, Integer>();
 		HashMap<InternalCell, InternalCell> previous = new HashMap<InternalCell, InternalCell>();
@@ -428,8 +427,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		for (InternalCell cell : ret) {
 			System.out.printf("[%d:%d] -> ", cell.position.x, cell.position.y);
 		}
-		System.out.println("Done");
-		System.out.println("=========================");
+		System.out.println("Target Reached");
 		return ret;
 	}
 
