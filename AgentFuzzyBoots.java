@@ -174,6 +174,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		 * @return
 		 */
 		public int getDangerEstimate(AgentFuzzyBoots agent) {
+			System.out.println("Danger Estimate " + toString() + ": " + (hasWumpus(agent) + hasPit(agent)));
 			return (hasWumpus(agent) + hasPit(agent));
 		}
 		
@@ -185,11 +186,15 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			if(visited) return 0;
 			int chance = 0;
 			for (Position pos : Position.getSurroundingPositions(position)) {
-				if (agent.map.get(pos) != null && agent.map.get(pos).hasStench) {
+				if (agent.map.get(pos) != null) {
+					if (agent.map.get(pos).hasStench) {
 						chance += 25;
+					} else if (agent.map.get(pos).visited && !agent.map.get(pos).hasStench) {
+						return 0;
+					}
 				}
 			}
-			System.out.println("Wumpus danger for " + this + ": " + chance);
+			//System.out.println("Wumpus danger for " + this + ": " + chance);
 			return chance;
 		}
 
@@ -197,11 +202,15 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			if(visited) return 0;
 			int chance = 0;
 			for (Position pos : Position.getSurroundingPositions(position)) {
-				if (agent.map.get(pos) != null && agent.map.get(pos).hasBreeze) {
+				if (agent.map.get(pos) != null) {
+					if (agent.map.get(pos).hasBreeze) {
 						chance += 25;
+					} else if (agent.map.get(pos).visited && !agent.map.get(pos).hasBreeze) {
+						return 0;
+					}
 				}
 			}
-			System.out.println("Pit    danger for " + this + ": " + chance);
+			//System.out.println("Pit    danger for " + this + ": " + chance);
 			return chance;
 		}
 
