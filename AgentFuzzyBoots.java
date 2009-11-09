@@ -189,7 +189,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 						chance += 25;
 				}
 			}
-			System.out.println("Wumpus danger("+position.x+":"+position.y+"): " + chance);
+			System.out.println("Wumpus danger for " + this + ": " + chance);
 			return chance;
 		}
 
@@ -201,7 +201,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 						chance += 25;
 				}
 			}
-			System.out.println("Pit danger("+position.x+":"+position.y+"): " + chance);
+			System.out.println("Pit danger for " + this + ": " + chance);
 			return chance;
 		}
 
