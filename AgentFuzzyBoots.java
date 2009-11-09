@@ -158,7 +158,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 	private static class InternalCell {
 		public final Position position;
-		public boolean hasGold = true;
+		public boolean hasGold = false;
 		public boolean hasStench = false;
 		public boolean hasBreeze = false;
 		public boolean isWall = false;
