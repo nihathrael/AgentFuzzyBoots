@@ -16,8 +16,10 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	/**
 	 * {@link AgentFuzzyBoots} is an agent with an internal model of the world
 	 * and goals it tries to accomplish. Main goals: 1. Collect gold 2. Don't
-	 * walk into wumpus or pits 3. Explore 4. Shoot arrow when wumpus location
+	 * walk into Wumpus or pits 3. Explore 4. Shoot arrow when Wumpus location
 	 * known and no other way is available 5. Return to level beginning
+	 * 
+	 * TODO Implement Arrow shooting 
 	 */
 	private int currentOrientation;
 	private InternalCell currentCell;
@@ -38,8 +40,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	public AgentFuzzyBoots() {
 		super();
 		this.currentOrientation = this.startOrientation;
-		InternalCell start = new InternalCell(new Position(this.startLocationX,
-				this.startLocationY));
+		InternalCell start = new InternalCell(new Position(this.startLocationX, this.startLocationY));
 		this.currentCell = start;
 		start.visited = true;
 		map.put(currentCell.position, start);
@@ -116,7 +117,6 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 	@Override
 	public void resetAgent() {
-
 	}
 
 	public static List<Integer> getActionSequenceForPath(List<InternalCell> path,
@@ -370,12 +370,9 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		PriorityQueue<InternalCell> que = new PriorityQueue<InternalCell>(agent.map
 				.size(), new Comparator<InternalCell>() {
 			public int compare(InternalCell o1, InternalCell o2) {
-				if (distance.get(o1) == null)
-					return new Integer(1).compareTo(0);
-				else if (distance.get(o2) == null)
-					return new Integer(0).compareTo(1);
-				else
-					return distance.get(o1).compareTo(distance.get(o2));
+				if (distance.get(o1) == null) 		return 1;
+				else if (distance.get(o2) == null) 	return -1;
+				else 								return distance.get(o1).compareTo(distance.get(o2));
 			}
 		});
 		for (InternalCell entry : agent.map.values()) {
