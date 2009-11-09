@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.PriorityQueue;
 
 import server.Action;
@@ -122,7 +121,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 	public static List<Integer> getActionSequenceForPath(List<InternalCell> path,
 			AgentFuzzyBoots agent) {
-		List<Integer> ret = new ArrayList<Integer>();
+		ArrayList<Integer> ret = new ArrayList<Integer>();
 		InternalCell last = agent.currentCell;
 		int orientation = agent.currentOrientation;
 		for (InternalCell cur : path) {
@@ -260,8 +259,8 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			return (o.x == this.x && o.y == this.y) ? 0 : 1;
 		}
 
-		public static List<AgentFuzzyBoots.Position> getSurroundingPositions(AgentFuzzyBoots.Position center) {
-			List<AgentFuzzyBoots.Position> posis = new ArrayList<AgentFuzzyBoots.Position>(4);
+		public static ArrayList<AgentFuzzyBoots.Position> getSurroundingPositions(AgentFuzzyBoots.Position center) {
+			ArrayList<AgentFuzzyBoots.Position> posis = new ArrayList<AgentFuzzyBoots.Position>(4);
 			posis.add(new AgentFuzzyBoots.Position(center.x + 1, center.y));
 			posis.add(new AgentFuzzyBoots.Position(center.x - 1, center.y));
 			posis.add(new AgentFuzzyBoots.Position(center.x, center.y + 1));
@@ -331,7 +330,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 		@Override
 		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
-			List<InternalCell> path = calculateRoute(agent.currentCell, agent.map
+			ArrayList<InternalCell> path = calculateRoute(agent.currentCell, agent.map
 					.get(new Position(agent.startLocationX,
 							agent.startLocationY)), agent);
 			List<Integer> sequence = getActionSequenceForPath(path, agent);
@@ -348,18 +347,18 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		}
 
 		@Override
-		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
-			List<Integer> ret = new ArrayList<Integer>(1);
+		public ArrayList<Integer> generateActionSequence(AgentFuzzyBoots agent) {
+			ArrayList<Integer> ret = new ArrayList<Integer>(1);
 			ret.add(Action.GRAB);
 			return ret;
 		}
 	}
 
-	public static List<InternalCell> calculateRoute(InternalCell from,
+	public static ArrayList<InternalCell> calculateRoute(InternalCell from,
 			InternalCell to, AgentFuzzyBoots agent) {
 		System.out.println("=========================");
 		System.out.println("Looking for path...");
-		List<InternalCell> ret = new ArrayList<InternalCell>();
+		ArrayList<InternalCell> ret = new ArrayList<InternalCell>();
 		final HashMap<InternalCell, Integer> distance = new HashMap<InternalCell, Integer>();
 		HashMap<InternalCell, InternalCell> previous = new HashMap<InternalCell, InternalCell>();
 
@@ -386,12 +385,14 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		que.remove(from);
 		distance.put(from, 0);
 		que.add(from);
+		ArrayList<InternalCell> neighbors = new ArrayList<InternalCell>();
+		InternalCell u = null;
 		while (!que.isEmpty()) {
-			InternalCell u = que.peek();
+			u = que.peek();
 			if (distance.get(u) == null)
 				break;
 			que.poll();
-			List<InternalCell> neighbors = new ArrayList<InternalCell>();
+			neighbors.clear();
 			for (InternalCell entry : que) {
 				if (Math.abs(entry.position.x - u.position.x)
 						+ Math.abs(entry.position.y - u.position.y) == 1) {
