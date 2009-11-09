@@ -284,13 +284,13 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 	private static class ExploreGoal implements Goal {
 
-		private List<InternalCell> targets;
+		private List<InternalCell> path;
 
 		@Override
 		public boolean choosable(final AgentFuzzyBoots agent) {
 			// We can still try to find gold if we have a cell on our map
 			// we haven't visited and that isn't too dangerous
-			targets = new ArrayList<InternalCell>();
+			List<InternalCell>targets = new ArrayList<InternalCell>();
 			targets.addAll(agent.map.values());
 			for (Iterator<InternalCell> it = targets.iterator(); it.hasNext(); ) {
 				InternalCell next = it.next();
@@ -305,7 +305,13 @@ public class AgentFuzzyBoots extends AbstractAgent {
 							agent.currentCell.position.distanceTo(o2.position));
 				}
 			});
-			if (!targets.isEmpty()) {
+			path = null;
+			for (InternalCell nextTarget: targets) {
+				path = calculateRoute(agent.currentCell,
+						nextTarget, agent);
+				if (path != null) break;
+			}
+			if (path != null) {
 				System.out.println("Found legal target(s). First: "
 						+ targets.get(0).position.x + ":"
 						+ targets.get(0).position.y);
@@ -317,13 +323,6 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 		@Override
 		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
-			List<InternalCell> path = null;
-			for (InternalCell nextTarget: targets) {
-				path = calculateRoute(agent.currentCell,
-						nextTarget, agent);
-				if (path != null) break;
-			}
-			if (path == null) throw new RuntimeException("None of the targets was reachable!");
 			return getActionSequenceForPath(path, agent);
 		}
 
