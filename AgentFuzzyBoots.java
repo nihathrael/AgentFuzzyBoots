@@ -176,6 +176,10 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		public int getDangerEstimate(AgentFuzzyBoots agent) {
 			return (hasWumpus(agent) + hasPit(agent));
 		}
+		
+		public String toString() {
+			return "InternalCell[" + position.x + ":" + position.y + "]";
+		}
 
 		public int hasWumpus(AgentFuzzyBoots agent) {
 			int chance = 0;
