@@ -212,6 +212,10 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			hasBreeze = perc.breeze;
 			hasGold = perc.glitter;
 		}
+		
+		public String toString() {
+			return "Cell: " + position.x + ":" + position.y;
+		}
 	}
 
 	static class Position implements Comparable<Position> {
@@ -357,7 +361,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	public static ArrayList<InternalCell> calculateRoute(InternalCell from,
 			InternalCell to, AgentFuzzyBoots agent) {
 		System.out.println("=========================");
-		System.out.println("Looking for path...");
+		System.out.printf("Looking for path from %s to %s\n", from.toString(), to.toString());
 		ArrayList<InternalCell> ret = new ArrayList<InternalCell>();
 		final HashMap<InternalCell, Integer> distance = new HashMap<InternalCell, Integer>();
 		HashMap<InternalCell, InternalCell> previous = new HashMap<InternalCell, InternalCell>();
