@@ -243,12 +243,27 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		private InternalCell nextTarget = null;
 
 		@Override
-		public boolean choosable(AgentFuzzyBoots agent) {
+		public boolean choosable(final AgentFuzzyBoots agent) {
 			for (InternalCell cell : agent.map.values()) {
 				// We can still try to find gold if we have a cell on our map
 				// we haven't visited and that isn't too dangerous
 				if (cell.visited == false
 						&& cell.getDangerEstimate() < AcceptableDangerEstimate) {
+					List<InternalCell> nodes = new ArrayList<InternalCell>();
+					nodes.addAll(agent.map.values());
+					nodes.remove(currentCell);
+					nextTarget = Collections.min(nodes, new Comparator<InternalCell>() {
+						@Override
+						public int compare(InternalCell o1, InternalCell o2) {
+							return distance(o1).compareTo(distance(o2));
+						}
+						
+						private Integer distance(InternalCell cell) {
+							int x = agent.currentCell.position.x - cell.position.x;
+							int y = agent.currentCell.position.y - cell.position.y;
+							return x*x + y*y;
+						}
+					});
 					System.out.println("Found legal target: "
 							+ nextTarget.position.x + ":"
 							+ nextTarget.position.y);
@@ -259,23 +274,8 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		}
 
 		@Override
-		public List<Integer> generateActionSequence(final AgentFuzzyBoots agent) {
+		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
 			List<Integer> ret = new ArrayList<Integer>();
-			List<InternalCell> nodes = Collections.emptyList();
-			nodes.addAll(agent.map.values());
-			nodes.remove(currentCell);
-			nextTarget = Collections.min(nodes, new Comparator<InternalCell>() {
-				@Override
-				public int compare(InternalCell o1, InternalCell o2) {
-					return distance(o1).compareTo(distance(o2));
-				}
-				
-				private Integer distance(InternalCell cell) {
-					int x = agent.currentCell.position.x - cell.position.x;
-					int y = agent.currentCell.position.y - cell.position.y;
-					return x*x + y*y;
-				}
-			});
 			List<InternalCell> path = calculateRoute(agent.currentCell,
 					nextTarget, map);
 			InternalCell last = agent.currentCell;
