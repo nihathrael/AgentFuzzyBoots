@@ -166,6 +166,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 		public InternalCell(Position pos) {
 			position = pos;
+			if (pos.x < 0 || pos.y < 0 || pos.x > 9 || pos.y > 9) isWall = true;
 		}
 
 		/**
