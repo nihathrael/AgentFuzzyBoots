@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.PriorityQueue;
 
 import server.Action;
@@ -31,7 +32,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	/**
 	 * Current sequence the agent is using
 	 */
-	private ArrayList<Integer> sequence = null;
+	private List<Integer> sequence = null;
 
 	private Goal[] goals = { new PickupGoldGoal(), new ExploreGoal(),
 			new ReturnHomeGoal() };
@@ -118,7 +119,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	public void resetAgent() {
 	}
 
-	public static ArrayList<Integer> getActionSequenceForPath(ArrayList<InternalCell> path,
+	public static List<Integer> getActionSequenceForPath(List<InternalCell> path,
 			AgentFuzzyBoots agent) {
 		ArrayList<Integer> ret = new ArrayList<Integer>();
 		InternalCell last = agent.currentCell;
@@ -271,45 +272,50 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	private static interface Goal {
 		public boolean choosable(AgentFuzzyBoots agent);
 
-		public ArrayList<Integer> generateActionSequence(AgentFuzzyBoots agent);
+		public List<Integer> generateActionSequence(AgentFuzzyBoots agent);
 	}
 
 	private static class ExploreGoal implements Goal {
 
-		private InternalCell nextTarget = null;
+		private List<InternalCell> targets;
 
 		@Override
 		public boolean choosable(final AgentFuzzyBoots agent) {
-			for (InternalCell cell : agent.map.values()) {
-				// We can still try to find gold if we have a cell on our map
-				// we haven't visited and that isn't too dangerous
-				if (cell.visited == false
-						&& cell.getDangerEstimate(agent) < AcceptableDangerEstimate) {
-					ArrayList<InternalCell> nodes = new ArrayList<InternalCell>();
-					nodes.addAll(agent.map.values());
-					for (Iterator<InternalCell> it = nodes.iterator(); it.hasNext(); ) {
-				        if (it.next().visited) it.remove();
-					}
-					nextTarget = Collections.min(nodes, new Comparator<InternalCell>() {
-						@Override
-						public int compare(InternalCell o1, InternalCell o2) {
-							return agent.currentCell.position.distanceTo(o1.position).compareTo(
-									agent.currentCell.position.distanceTo(o2.position));
-						}
-					});
-					System.out.println("Found legal target: "
-							+ nextTarget.position.x + ":"
-							+ nextTarget.position.y);
-					return true;
-				}
+			// We can still try to find gold if we have a cell on our map
+			// we haven't visited and that isn't too dangerous
+			targets = new ArrayList<InternalCell>();
+			targets.addAll(agent.map.values());
+			for (Iterator<InternalCell> it = targets.iterator(); it.hasNext(); ) {
+				InternalCell next = it.next();
+		        if (next.visited || next.getDangerEstimate(agent) > AcceptableDangerEstimate) {
+		        	it.remove();
+		        }
 			}
-			return false;
+			Collections.sort(targets, new Comparator<InternalCell>() {
+				@Override
+				public int compare(InternalCell o1, InternalCell o2) {
+					return agent.currentCell.position.distanceTo(o1.position).compareTo(
+							agent.currentCell.position.distanceTo(o2.position));
+				}
+			});
+			if (!targets.isEmpty()) {
+				System.out.println("Found legal target(s). First: "
+						+ targets.get(0).position.x + ":"
+						+ targets.get(0).position.y);
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		@Override
-		public ArrayList<Integer> generateActionSequence(AgentFuzzyBoots agent) {
-			ArrayList<InternalCell> path = calculateRoute(agent.currentCell,
-					nextTarget, agent);
+		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
+			List<InternalCell> path = null;
+			for (InternalCell nextTarget: targets) {
+				path = calculateRoute(agent.currentCell,
+						nextTarget, agent);
+				if (path != null) break;
+			}
 			return getActionSequenceForPath(path, agent);
 		}
 
@@ -323,11 +329,11 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		}
 
 		@Override
-		public ArrayList<Integer> generateActionSequence(AgentFuzzyBoots agent) {
+		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
 			ArrayList<InternalCell> path = calculateRoute(agent.currentCell, agent.map
 					.get(new Position(agent.startLocationX,
 							agent.startLocationY)), agent);
-			ArrayList<Integer> sequence = getActionSequenceForPath(path, agent);
+			List<Integer> sequence = getActionSequenceForPath(path, agent);
 			sequence.add(Action.CLIMB);
 			return sequence;
 		}
@@ -402,6 +408,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		}
 		InternalCell tmp = to;
 		while (tmp != from) {
+			if (tmp == null) return null; // no way found
 			ret.add(tmp);
 			tmp = previous.get(tmp);
 		}
