@@ -128,6 +128,43 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 	}
 
+	public static List<Integer> getActionSequenceForPath(List<InternalCell> path,
+			AgentFuzzyBoots agent) {
+		List<Integer> ret = new ArrayList<Integer>();
+		InternalCell last = agent.currentCell;
+		int orientation = agent.currentOrientation;
+		for (InternalCell cur : path) {
+			if (cur.position.x < last.position.x) {
+				for (int i = 0; i < Directions.getRequiredLeftTurns(
+						orientation, Directions.WEST); ++i) {
+					ret.add(Action.TURN_LEFT);
+					orientation = Directions.WEST;
+				}
+			} else if (cur.position.x > last.position.x) {
+				for (int i = 0; i < Directions.getRequiredRightTurns(
+						orientation, Directions.EAST); ++i) {
+					ret.add(Action.TURN_RIGHT);
+					orientation = Directions.EAST;
+				}
+			} else if (cur.position.y < last.position.y) {
+				for (int i = 0; i < Directions.getRequiredRightTurns(
+						orientation, Directions.SOUTH); ++i) {
+					ret.add(Action.TURN_RIGHT);
+					orientation = Directions.SOUTH;
+				}
+			} else if (cur.position.y > last.position.y) {
+				for (int i = 0; i < Directions.getRequiredLeftTurns(
+						orientation, Directions.NORTH); ++i) {
+					ret.add(Action.TURN_LEFT);
+					orientation = Directions.NORTH;
+				}
+			}
+			ret.add(Action.GOFORWARD);
+			last = cur;
+		}
+		return ret;
+	}
+
 	private class InternalCell {
 		public final Position position;
 		public boolean hasGold = true;
@@ -261,36 +298,9 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 		@Override
 		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
-			List<Integer> ret = new ArrayList<Integer>();
 			List<InternalCell> path = calculateRoute(agent.currentCell,
 					nextTarget, map);
-			InternalCell last = agent.currentCell;
-			for (InternalCell cur : path) {
-				if (cur.position.x < last.position.x) {
-					for (int i = 0; i < Directions.getRequiredLeftTurns(
-							currentOrientation, Directions.WEST); ++i) {
-						ret.add(Action.TURN_LEFT);
-					}
-				} else if (cur.position.x > last.position.x) {
-					for (int i = 0; i < Directions.getRequiredRightTurns(
-							currentOrientation, Directions.EAST); ++i) {
-						ret.add(Action.TURN_RIGHT);
-					}
-				} else if (cur.position.y < last.position.y) {
-					for (int i = 0; i < Directions.getRequiredRightTurns(
-							currentOrientation, Directions.SOUTH); ++i) {
-						ret.add(Action.TURN_RIGHT);
-					}
-				} else if (cur.position.y > last.position.y) {
-					for (int i = 0; i < Directions.getRequiredLeftTurns(
-							currentOrientation, Directions.NORTH); ++i) {
-						ret.add(Action.TURN_LEFT);
-					}
-				}
-				ret.add(Action.GOFORWARD);
-				last = cur;
-			}
-			return ret;
+			return getActionSequenceForPath(path, agent);
 		}
 
 	}
@@ -304,38 +314,12 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 		@Override
 		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
-			List<Integer> ret = new ArrayList<Integer>();
 			List<InternalCell> path = calculateRoute(currentCell, agent.map
 					.get(new Position(agent.startLocationX,
 							agent.startLocationY)), map);
-			InternalCell last = agent.currentCell;
-			for (InternalCell cur : path) {
-				if (cur.position.x < last.position.x) {
-					for (int i = 0; i < Directions.getRequiredLeftTurns(
-							currentOrientation, Directions.WEST); ++i) {
-						ret.add(Action.TURN_LEFT);
-					}
-				} else if (cur.position.x > last.position.x) {
-					for (int i = 0; i < Directions.getRequiredRightTurns(
-							currentOrientation, Directions.EAST); ++i) {
-						ret.add(Action.TURN_RIGHT);
-					}
-				} else if (cur.position.y < last.position.y) {
-					for (int i = 0; i < Directions.getRequiredRightTurns(
-							currentOrientation, Directions.SOUTH); ++i) {
-						ret.add(Action.TURN_RIGHT);
-					}
-				} else if (cur.position.y > last.position.y) {
-					for (int i = 0; i < Directions.getRequiredLeftTurns(
-							currentOrientation, Directions.NORTH); ++i) {
-						ret.add(Action.TURN_LEFT);
-					}
-				}
-				ret.add(Action.GOFORWARD);
-				last = cur;
-			}
-			ret.add(Action.CLIMB);
-			return ret;
+			List<Integer> sequence = getActionSequenceForPath(path, agent);
+			sequence.add(Action.CLIMB);
+			return sequence;
 		}
 	}
 
