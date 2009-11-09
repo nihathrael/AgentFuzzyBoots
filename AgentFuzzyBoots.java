@@ -320,6 +320,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 						nextTarget, agent);
 				if (path != null) break;
 			}
+			if (path == null) throw new RuntimeException("None of the targets was reachable!");
 			return getActionSequenceForPath(path, agent);
 		}
 
@@ -361,7 +362,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	public static ArrayList<InternalCell> calculateRoute(InternalCell from,
 			InternalCell to, AgentFuzzyBoots agent) {
 		System.out.println("=========================");
-		System.out.println("Looking for path...");
+		System.out.printf("Looking for path to %d:%d...\n", to.position.x, to.position.y);
 		ArrayList<InternalCell> ret = new ArrayList<InternalCell>();
 		final HashMap<InternalCell, Integer> distance = new HashMap<InternalCell, Integer>();
 		HashMap<InternalCell, InternalCell> previous = new HashMap<InternalCell, InternalCell>();
