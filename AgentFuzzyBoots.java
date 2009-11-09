@@ -192,7 +192,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 					}
 				}
 			}
-			System.out.println("Wumpus danger: " + chance);
+			System.out.println("Wumpus danger for " + this + ": " + chance);
 			return chance;
 		}
 
@@ -207,7 +207,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 					}
 				}
 			}
-			System.out.println("Pit danger: " + chance);
+			System.out.println("Pit danger for " + this + ": " + chance);
 			return chance;
 		}
 
