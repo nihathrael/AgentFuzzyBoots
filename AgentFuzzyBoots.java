@@ -158,7 +158,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 	private static class InternalCell {
 		public final Position position;
-		public boolean hasGold = true;
+		public boolean hasGold = false;
 		public boolean hasStench = false;
 		public boolean hasBreeze = false;
 		public boolean isWall = false;
@@ -182,14 +182,11 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		}
 
 		public int hasWumpus(AgentFuzzyBoots agent) {
+			if(visited) return 0;
 			int chance = 0;
 			for (Position pos : Position.getSurroundingPositions(position)) {
-				if (agent.map.get(pos) != null) {
-					if (agent.map.get(pos).hasStench) {
+				if (agent.map.get(pos) != null && agent.map.get(pos).hasStench) {
 						chance += 25;
-					} else if (agent.map.get(pos).visited) {
-						return 0;
-					}
 				}
 			}
 			System.out.println("Wumpus danger for " + this + ": " + chance);
@@ -197,14 +194,11 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		}
 
 		public int hasPit(AgentFuzzyBoots agent) {
+			if(visited) return 0;
 			int chance = 0;
 			for (Position pos : Position.getSurroundingPositions(position)) {
-				if (agent.map.get(pos) != null) {
-					if (agent.map.get(pos).hasBreeze) {
+				if (agent.map.get(pos) != null && agent.map.get(pos).hasBreeze) {
 						chance += 25;
-					} else if (agent.map.get(pos).visited) {
-						return 0;
-					}
 				}
 			}
 			System.out.println("Pit danger for " + this + ": " + chance);
