@@ -201,7 +201,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 						chance += 25;
 				}
 			}
-			System.out.println("Pit danger for " + this + ": " + chance);
+			System.out.println("Pit    danger for " + this + ": " + chance);
 			return chance;
 		}
 
