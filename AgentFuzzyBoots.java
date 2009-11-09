@@ -189,7 +189,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 				if (agent.map.get(pos) != null) {
 					if (agent.map.get(pos).hasStench) {
 						chance += 25;
-					} else if (agent.map.get(pos).visited && !agent.map.get(pos).hasStench) {
+					} else if (agent.map.get(pos).visited && !agent.map.get(pos).hasStench && !agent.map.get(pos).isWall) {
 						return 0;
 					}
 				}
@@ -205,7 +205,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 				if (agent.map.get(pos) != null) {
 					if (agent.map.get(pos).hasBreeze) {
 						chance += 25;
-					} else if (agent.map.get(pos).visited && !agent.map.get(pos).hasBreeze) {
+					} else if (agent.map.get(pos).visited && !agent.map.get(pos).hasBreeze && !agent.map.get(pos).isWall) {
 						return 0;
 					}
 				}
