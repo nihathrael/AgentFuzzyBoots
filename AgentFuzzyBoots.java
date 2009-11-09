@@ -389,10 +389,10 @@ public class AgentFuzzyBoots extends AbstractAgent {
 				break;
 			que.poll();
 			List<InternalCell> neighbors = new ArrayList<InternalCell>();
-			for (Map.Entry<Position, InternalCell> entry : map.entrySet()) {
-				if (Math.abs(entry.getKey().x - u.position.x)
-						+ Math.abs(entry.getKey().y - u.position.y) == 1) {
-					neighbors.add(entry.getValue());
+			for (InternalCell entry : que) {
+				if (Math.abs(entry.position.x - u.position.x)
+						+ Math.abs(entry.position.y - u.position.y) == 1) {
+					neighbors.add(entry);
 				}
 			}
 			for (InternalCell neigh : neighbors) {
