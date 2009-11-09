@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -288,7 +289,9 @@ public class AgentFuzzyBoots extends AbstractAgent {
 						&& cell.getDangerEstimate(agent) < AcceptableDangerEstimate) {
 					List<InternalCell> nodes = new ArrayList<InternalCell>();
 					nodes.addAll(agent.map.values());
-					nodes.remove(agent.currentCell);
+					for (Iterator<InternalCell> it = nodes.iterator(); it.hasNext(); ) {
+				        if (it.next().visited) it.remove();
+					}
 					nextTarget = Collections.min(nodes, new Comparator<InternalCell>() {
 						@Override
 						public int compare(InternalCell o1, InternalCell o2) {
