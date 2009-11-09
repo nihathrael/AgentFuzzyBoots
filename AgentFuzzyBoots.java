@@ -31,13 +31,15 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	 * Current sequence the agent is using
 	 */
 	private List<Integer> sequence = null;
-	
-	private Goal[] goals = { new PickupGoldGoal(), new ExploreGoal(), new ReturnHomeGoal() };
+
+	private Goal[] goals = { new PickupGoldGoal(), new ExploreGoal(),
+			new ReturnHomeGoal() };
 
 	public AgentFuzzyBoots() {
 		super();
 		this.currentOrientation = this.startOrientation;
-		InternalCell start = new InternalCell(new Position(this.startLocationX, this.startLocationY));
+		InternalCell start = new InternalCell(new Position(this.startLocationX,
+				this.startLocationY));
 		this.currentCell = start;
 		start.visited = true;
 		map.put(currentCell.position, start);
@@ -52,18 +54,20 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			sequence = goal.generateActionSequence(this);
 		}
 		int action = sequence.remove(0);
-		
+
 		// Make sure we set the current rotation correctly
-		if(action == Action.TURN_RIGHT) {
+		if (action == Action.TURN_RIGHT) {
 			currentOrientation = Directions.turnRight(currentOrientation);
 		} else if (action == Action.TURN_LEFT) {
 			currentOrientation = Directions.turnLeft(currentOrientation);
 		}
 		return action;
-	}	
+	}
+
 	private Goal generateGoal() {
 		for (Goal goal : goals) {
-			if (goal.choosable(this)) return goal;
+			if (goal.choosable(this))
+				return goal;
 		}
 		throw new RuntimeException("Bad things are bad");
 	}
@@ -71,53 +75,51 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	private void updateCells(Percepts p) {
 		int x_coord = currentCell.position.x;
 		int y_coord = currentCell.position.y;
-		switch (currentOrientation) {
-		case Directions.EAST:
-			++x_coord;
-			break;
-		case Directions.WEST:
-			--x_coord;
-			break;
-		case Directions.SOUTH:
-			y_coord--;
-			break;
-		case Directions.NORTH:
-			y_coord++;
-			break;
+		if (p.lastAction == Action.GOFORWARD) {
+			switch (currentOrientation) {
+			case Directions.EAST:
+				++x_coord;
+				break;
+			case Directions.WEST:
+				--x_coord;
+				break;
+			case Directions.SOUTH:
+				y_coord--;
+				break;
+			case Directions.NORTH:
+				y_coord++;
+				break;
+			}
 		}
-		System.out.printf("Next coord: %d:%d\n", x_coord, y_coord);
 		InternalCell next = map.get(new Position(x_coord, y_coord));
 		if (!p.bump) {
 			currentCell = next;
 			addSurroundingCells();
 			next.loadPercept(p);
-			// Mark surrounding cells with possible problems
-			for(Position pos: getSurroundingPositions(currentCell.position)) {
-				InternalCell cell = map.get(pos);
-				// ...
-			}
 		} else {
-			System.out.println("Ouh! Wall...");
+			System.out.println("OUH Wall..");
 			this.sequence = null;
 			next.isWall = true;
 		}
 		next.visited = true;
-		System.out.println("Agent is now at: " + currentCell.position.x +":" + currentCell.position.y);
+		System.out.println("Now at: " + currentCell.position.x + ":"
+				+ currentCell.position.y);
 		// infer wumpus, pit
 	}
 
 	private void addSurroundingCells() {
-		for(Position pos: getSurroundingPositions(currentCell.position)) {
-			if (map.get(pos) == null) map.put(pos, new InternalCell(pos));
+		for (Position pos : getSurroundingPositions(currentCell.position)) {
+			if (map.get(pos) == null)
+				map.put(pos, new InternalCell(pos));
 		}
 	}
-	
+
 	public List<Position> getSurroundingPositions(Position center) {
 		List<Position> posis = new ArrayList<Position>(4);
-		posis.add(new Position(center.x+1, center.y));
-		posis.add(new Position(center.x-1, center.y));
-		posis.add(new Position(center.x, center.y+1));
-		posis.add(new Position(center.x, center.y-1));
+		posis.add(new Position(center.x + 1, center.y));
+		posis.add(new Position(center.x - 1, center.y));
+		posis.add(new Position(center.x, center.y + 1));
+		posis.add(new Position(center.x, center.y - 1));
 		return posis;
 	}
 
@@ -146,13 +148,13 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		public int getDangerEstimate() {
 			return (hasWumpus() + hasPit());
 		}
-		
+
 		public int hasWumpus() {
 			int chance = 0;
-			for(Position pos: getSurroundingPositions(position)) {
-				if(map.get(pos) != null) {
-					if(map.get(pos).hasStench) {
-						chance += 25; 
+			for (Position pos : getSurroundingPositions(position)) {
+				if (map.get(pos) != null) {
+					if (map.get(pos).hasStench) {
+						chance += 25;
 					} else if (map.get(pos).visited) {
 						return 0;
 					}
@@ -161,13 +163,13 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			System.out.println("Wumpus danger: " + chance);
 			return chance;
 		}
-		
+
 		public int hasPit() {
 			int chance = 0;
-			for(Position pos: getSurroundingPositions(position)) {
-				if(map.get(pos) != null) {
-					if(map.get(pos).hasBreeze) {
-						chance += 25; 
+			for (Position pos : getSurroundingPositions(position)) {
+				if (map.get(pos) != null) {
+					if (map.get(pos).hasBreeze) {
+						chance += 25;
 					} else if (map.get(pos).visited) {
 						return 0;
 					}
@@ -248,7 +250,9 @@ public class AgentFuzzyBoots extends AbstractAgent {
 				if (cell.visited == false
 						&& cell.getDangerEstimate() < AcceptableDangerEstimate) {
 					nextTarget = cell;
-					System.out.println("Found legal target: " + nextTarget.position.x + ":" + nextTarget.position.y);
+					System.out.println("Found legal target: "
+							+ nextTarget.position.x + ":"
+							+ nextTarget.position.y);
 					return true;
 				}
 			}
@@ -258,7 +262,8 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		@Override
 		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
 			List<Integer> ret = new ArrayList<Integer>();
-			List<InternalCell> path = calculateRoute(agent.currentCell, nextTarget, map);
+			List<InternalCell> path = calculateRoute(agent.currentCell,
+					nextTarget, map);
 			InternalCell last = agent.currentCell;
 			for (InternalCell cur : path) {
 				if (cur.position.x < last.position.x) {
@@ -300,8 +305,9 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		@Override
 		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
 			List<Integer> ret = new ArrayList<Integer>();
-  			List<InternalCell> path = calculateRoute(currentCell, agent.map.get(new Position(
-					agent.startLocationX, agent.startLocationY)), map);
+			List<InternalCell> path = calculateRoute(currentCell, agent.map
+					.get(new Position(agent.startLocationX,
+							agent.startLocationY)), map);
 			InternalCell last = agent.currentCell;
 			for (InternalCell cur : path) {
 				if (cur.position.x < last.position.x) {
@@ -360,15 +366,21 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		PriorityQueue<InternalCell> que = new PriorityQueue<InternalCell>(map
 				.size(), new Comparator<InternalCell>() {
 			public int compare(InternalCell o1, InternalCell o2) {
-				if (distance.get(o1) == null) return new Integer(1).compareTo(0);
-				else if (distance.get(o2) == null) return new Integer(0).compareTo(1);
-				else return distance.get(o1).compareTo(distance.get(o2));
+				if (distance.get(o1) == null)
+					return new Integer(1).compareTo(0);
+				else if (distance.get(o2) == null)
+					return new Integer(0).compareTo(1);
+				else
+					return distance.get(o1).compareTo(distance.get(o2));
 			}
 		});
 		for (InternalCell entry : map.values()) {
-			distance.put(entry, null);
-			previous.put(entry, null);
-			que.add(entry);
+			if (entry.getDangerEstimate() < AcceptableDangerEstimate
+					&& !entry.isWall) {
+				distance.put(entry, null);
+				previous.put(entry, null);
+				que.add(entry);
+			}
 		}
 		que.remove(from);
 		distance.put(from, 0);
@@ -380,15 +392,9 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			que.poll();
 			List<InternalCell> neighbors = new ArrayList<InternalCell>();
 			for (Map.Entry<Position, InternalCell> entry : map.entrySet()) {
-				System.out.printf("Checking cell %d:%d\n", entry.getKey().x, entry.getKey().y);
 				if (Math.abs(entry.getKey().x - u.position.x)
-						+ Math.abs(entry.getKey().y - u.position.y) == 1
-						&& entry.getValue().getDangerEstimate() < AcceptableDangerEstimate
-						&& !entry.getValue().isWall) {
+						+ Math.abs(entry.getKey().y - u.position.y) == 1) {
 					neighbors.add(entry.getValue());
-					System.out.println("OK!");
-				} else {
-					System.out.println("Nope, not ok...danger:" + entry.getValue().getDangerEstimate());
 				}
 			}
 			for (InternalCell neigh : neighbors) {
@@ -407,7 +413,15 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			tmp = previous.get(tmp);
 		}
 		Collections.reverse(ret);
-		System.out.printf("Moving from %d:%d to %d:%d distance: %d", from.position.x, from.position.y, to.position.x, to.position.y, distance.get(to));
+		System.out.printf("Moving from %d:%d to %d:%d distance: %d\n",
+				from.position.x, from.position.y, to.position.x, to.position.y,
+				distance.get(to));
+		System.out.print("Path: ");
+		for (InternalCell cell : ret) {
+			System.out.printf("[%d:%d] -> ", cell.position.x, cell.position.y);
+		}
+		System.out.println("Done");
+		System.out.println("=========================");
 		return ret;
 	}
 
