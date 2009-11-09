@@ -85,10 +85,10 @@ public class AgentFuzzyBoots extends AbstractAgent {
 				--x_coord;
 				break;
 			case Directions.SOUTH:
-				y_coord--;
+				y_coord++;
 				break;
 			case Directions.NORTH:
-				y_coord++;
+				y_coord--;
 				break;
 			}
 		}
