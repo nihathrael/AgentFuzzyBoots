@@ -25,6 +25,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	 */
 	private int currentOrientation;
 	private InternalCell currentCell;
+	private int arrowCount;
 
 	/**
 	 * The agents view of the world
@@ -77,11 +78,12 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	}
 
 	private void updateCells(Percepts p) {
+		arrowCount = p.numArrows;
 		InternalCell next = currentCell;
 		if (p.lastAction == Action.GOFORWARD) {
 			next = getNextCell();
 		} else if (p.lastAction == Action.SHOOT) {
-			if (p.scream) {
+			if (p.scream && ! p.stench) {
 				InternalCell target = getNextCell();
 				for (Position neighbor: Position.getSurroundingPositions(target.position)) {
 					InternalCell cell = map.get(neighbor);
@@ -322,8 +324,8 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			targets.addAll(agent.map.values());
 			for (Iterator<InternalCell> it = targets.iterator(); it.hasNext();) {
 				InternalCell next = it.next();
-				if (next.visited
-						|| next.getDangerEstimate(agent) > AcceptableDangerEstimate) {
+				if (next.visited ||
+						next.getDangerEstimate(agent) > AcceptableDangerEstimate) {
 					it.remove();
 				}
 			}
@@ -331,9 +333,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 				@Override
 				public int compare(InternalCell o1, InternalCell o2) {
 					return agent.currentCell.position.distanceTo(o1.position)
-							.compareTo(
-									agent.currentCell.position
-											.distanceTo(o2.position));
+							.compareTo(agent.currentCell.position.distanceTo(o2.position));
 				}
 			});
 			path = null;
@@ -368,6 +368,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		public boolean choosable(final AgentFuzzyBoots agent) {
 			// We can still try to find gold if we have a cell on our map
 			// we haven't visited and that isn't too dangerous
+			if (agent.arrowCount < 1) return false;
 			List<InternalCell> targets = new ArrayList<InternalCell>();
 			targets.addAll(agent.map.values());
 			for (Iterator<InternalCell> it = targets.iterator(); it.hasNext();) {
