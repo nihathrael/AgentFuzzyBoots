@@ -20,6 +20,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	 * known and no other way is available 5. Return to level beginning
 	 * 
 	 * TODO Implement Arrow shooting 
+	 * @ideas Use APSP for routing to use optimal number of steps to visit entire graph
 	 */
 	private int currentOrientation;
 	private InternalCell currentCell;
@@ -105,7 +106,6 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		next.visited = true;
 		System.out.println("Now at: " + currentCell.position.x + ":"
 				+ currentCell.position.y);
-		// infer wumpus, pit
 	}
 
 	private void addSurroundingCells() {
