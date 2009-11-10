@@ -16,13 +16,20 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	private static final int AcceptablePitEstimate = 50;
 	/**
 	 * {@link AgentFuzzyBoots} is an agent with an internal model of the world
-	 * and goals it tries to accomplish. Main goals: 1. Collect gold 2. Don't
-	 * walk into Wumpus or pits 3. Explore 4. Shoot arrow when Wumpus location
-	 * known and no other way is available 5. Return to level beginning
+	 * and goals it tries to accomplish. Main goals: 
+	 * 1. Collect gold 
+	 * 2. Shoot nearby Wumpus
+	 * 3. Explore 
+	 * 4. Return Home
+	 * The goals are checked in this priority. So if it is possible to collect gold, 
+	 * the agent will always collect gold.
+	 * If the agent found a goal he wants to use, he creates a plan how to accomplish
+	 * the goal.
 	 * 
-	 * TODO Implement Arrow shooting 
-	 * @ideas Use APSP for routing to use optimal number of steps to visit entire graph
+	 * Pathfinding is done by Dijkstra Algorithm.
+	 *
 	 */
+	
 	private int currentOrientation;
 	private InternalCell currentCell;
 	private int arrowCount;
@@ -30,7 +37,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	/**
 	 * The agents view of the world
 	 */
-	private HashMap<Position, InternalCell> map = new HashMap<Position, InternalCell>();
+	private HashMap<Position, InternalCell> map;
 
 	/**
 	 * Current sequence the agent is using
@@ -39,17 +46,6 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 	private Goal[] goals = { new PickupGoldGoal(), new ShootWumpusGoal(),
 			new ExploreGoal(), new ReturnHomeGoal() };
-
-	public AgentFuzzyBoots() {
-		super();
-		this.currentOrientation = this.startOrientation;
-		InternalCell start = new InternalCell(new Position(this.startLocationX,
-				this.startLocationY));
-		this.currentCell = start;
-		start.visited = true;
-		map.put(currentCell.position, start);
-		addSurroundingCells();
-	}
 
 	@Override
 	protected int chooseAction(Percepts p) {
@@ -135,6 +131,14 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 	@Override
 	public void resetAgent() {
+		map = new HashMap<Position, InternalCell>();		
+		this.currentOrientation = this.startOrientation;
+		InternalCell start = new InternalCell(new Position(this.startLocationX,
+		this.startLocationY));
+		this.currentCell = start;
+		start.visited = true;
+		map.put(currentCell.position, start);
+		addSurroundingCells();
 	}
 
 	public static List<Integer> getActionSequenceForPath(
@@ -237,7 +241,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 					}
 				}
 			}
-			// System.out.println("Pit    danger for " + this + ": " + chance);
+			// System.out.println("Pitdanger for " + this + ": " + chance);
 			return chance;
 		}
 
@@ -287,21 +291,36 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			return (o.x == this.x && o.y == this.y) ? 0 : 1;
 		}
 
+		/**
+		 * Returns the {@link Position} Objects for all Positions around the specified position center.
+		 * @param center The Center around which the {@link Position}s are to be collected. 
+		 * @return {@link Position} Objects for all Positions around the specified position.
+		 */
 		public static ArrayList<AgentFuzzyBoots.Position> getSurroundingPositions(
 				AgentFuzzyBoots.Position center) {
-			ArrayList<AgentFuzzyBoots.Position> posis = new ArrayList<AgentFuzzyBoots.Position>(
+			ArrayList<AgentFuzzyBoots.Position> positions = new ArrayList<AgentFuzzyBoots.Position>(
 					4);
-			posis.add(new AgentFuzzyBoots.Position(center.x + 1, center.y));
-			posis.add(new AgentFuzzyBoots.Position(center.x - 1, center.y));
-			posis.add(new AgentFuzzyBoots.Position(center.x, center.y + 1));
-			posis.add(new AgentFuzzyBoots.Position(center.x, center.y - 1));
-			return posis;
+			positions.add(new AgentFuzzyBoots.Position(center.x + 1, center.y));
+			positions.add(new AgentFuzzyBoots.Position(center.x - 1, center.y));
+			positions.add(new AgentFuzzyBoots.Position(center.x, center.y + 1));
+			positions.add(new AgentFuzzyBoots.Position(center.x, center.y - 1));
+			return positions;
 		}
 	}
+	
+	// ==============================================
+	//              Goals start here
+	// ==============================================
 
 	private static interface Goal {
+		/**
+		 * Check whether this {@link Goal} is choosable for execution.
+		 */
 		public boolean choosable(AgentFuzzyBoots agent);
-
+		/**
+		 * Generate a list of actions to accomplish this goal.
+		 * @return {@link List} of actions.
+		 */
 		public List<Integer> generateActionSequence(AgentFuzzyBoots agent);
 	}
 
@@ -338,8 +357,6 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 		@Override
 		public boolean choosable(final AgentFuzzyBoots agent) {
-			// We can still try to find gold if we have a cell on our map
-			// we haven't visited and that isn't too dangerous
 			if (agent.arrowCount < 1) return false;
 			final List<List<InternalCell>> paths = new ArrayList<List<InternalCell>>();
 			for (InternalCell next: agent.map.values()) {
@@ -411,6 +428,13 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		}
 	}
 
+	/**
+	 * Calculate a route from from to to. :) Uses Dijkstra's pathfinding algorithm.
+	 * @param from {@link InternalCell} on which to start.
+	 * @param to {@link InternalCell} we want to find a path to.
+	 * @param agent The {@link AgentFuzzyBoots} that will walk this path.
+	 * @return <code>null</code> if no path is found, otherwise {@link List} of {@link InternalCell}s for the path.
+	 */
 	public static ArrayList<InternalCell> calculateRoute(InternalCell from,
 			InternalCell to, AgentFuzzyBoots agent) {
 		// System.out.printf("Looking for path from %s to %s\n",
