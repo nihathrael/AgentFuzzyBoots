@@ -487,7 +487,8 @@ public class AgentFuzzyBoots extends AbstractAgent {
 				}
 			}
 			for (InternalCell neigh : neighbors) {
-				int alt = distance.get(u) + 1;
+				int gain = neigh.visited ? 1 : 0;
+				int alt = distance.get(u) + gain;
 				if (distance.get(neigh) == null || alt < distance.get(neigh)) {
 					que.remove(neigh);
 					distance.put(neigh, alt);
