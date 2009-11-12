@@ -44,10 +44,10 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	 */
 	private List<Integer> sequence = null;
 
-	//private Goal[] goals = { new PickupGoldGoal(), new ShootWumpusGoal(),
-	//		new ExploreGoal(), new ReturnHomeGoal() };
-	private Goal[] goals = { new PickupGoldGoal(),
-					new ExploreGoal(), new ReturnHomeGoal() };
+	private Goal[] goals = { new PickupGoldGoal(), new ShootWumpusGoal(),
+			new ExploreGoal(), new ReturnHomeGoal() };
+	//private Goal[] goals = { new PickupGoldGoal(),
+	//				new ExploreGoal(), new ReturnHomeGoal() };
 			
 	@Override
 	protected int chooseAction(Percepts p) {
@@ -149,6 +149,7 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		InternalCell last = agent.currentCell;
 		int orientation = agent.currentOrientation;
 		int toDirection = Directions.EAST;
+		int turnsleft, turnsright;
 		for (InternalCell cur : path) {
 			if (cur.position.x < last.position.x) {
 				toDirection = Directions.WEST;
@@ -159,8 +160,8 @@ public class AgentFuzzyBoots extends AbstractAgent {
 			} else if (cur.position.y > last.position.y) {
 				toDirection = Directions.SOUTH;
 			}
-			final int turnsleft = Directions.getRequiredLeftTurns(orientation, toDirection);
-			final int turnsright = Directions.getRequiredRightTurns(orientation, toDirection);
+			turnsleft = Directions.getRequiredLeftTurns(orientation, toDirection);
+			turnsright = Directions.getRequiredRightTurns(orientation, toDirection);
 			if(turnsleft < turnsright) {
 				for (int i = 0; i < turnsleft % 4; ++i) {
 					ret.add(Action.TURN_LEFT);
@@ -325,27 +326,31 @@ public class AgentFuzzyBoots extends AbstractAgent {
 
 	private static class ExploreGoal implements Goal {
 
-		private List<InternalCell> path;
+		private List<Integer> actions;
 
 		@Override
 		public boolean choosable(final AgentFuzzyBoots agent) {
 			// We can still try to find gold if we have a cell on our map
 			// we haven't visited and that isn't too dangerous
-			final List<List<InternalCell>> paths = new ArrayList<List<InternalCell>>();
+			final List<List<Integer>> actionlist = new ArrayList<List<Integer>>();
+			List<InternalCell> path = new ArrayList<InternalCell>();
 			for (InternalCell next: agent.map.values()) {
 				if (!next.visited && next.getDangerEstimate(agent) <= AcceptableDangerEstimate) {
-					paths.add(calculateRoute(agent.currentCell, next, agent));
+					path = calculateRoute(agent.currentCell, next, agent);
+					if(path != null) {
+						actionlist.add(getActionSequenceForPath(path, agent));
+					}
 				}
 				
 			}
-			if(paths.isEmpty()) return false;
-			path = Collections.min(paths, new PathComparator());
-			return path != null;
+			if(actionlist.isEmpty()) return false;
+			actions = Collections.min(actionlist, new ActionListComparator());
+			return actions != null;
 		}
 
 		@Override
 		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
-			return getActionSequenceForPath(path, agent);
+			return actions;
 		}
 
 	}
@@ -353,44 +358,46 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	private static class ShootWumpusGoal implements Goal {
 
 		private List<InternalCell> path;
+		private List<Integer> actions;
 
 		@Override
 		public boolean choosable(final AgentFuzzyBoots agent) {
 			if (agent.arrowCount < 1) return false;
-			final List<List<InternalCell>> paths = new ArrayList<List<InternalCell>>();
+			final List<List<Integer>> actionlist = new ArrayList<List<Integer>>();
+			List<InternalCell> path = new ArrayList<InternalCell>();
 			for (InternalCell next: agent.map.values()) {
 				if (!next.visited && next.hasWumpus(agent) >= AcceptableShootEstimate &&
 						next.hasPit(agent) < AcceptablePitEstimate) {
 					for(Position neigh: Position.getSurroundingPositions(next.position)) {
-						List<InternalCell> tmp= calculateRoute(agent.currentCell, agent.map.get(neigh), agent);
-						if(tmp != null) {
-							tmp.add(next);
-							paths.add(tmp);
+						path = calculateRoute(agent.currentCell, agent.map.get(neigh), agent);
+						if(path != null) {
+							path.add(next);
+							actionlist.add(getActionSequenceForPath(path, agent));
 						}
 					}
 				}
+				
 			}
-			if(paths.isEmpty()) return false;
-			path = Collections.min(paths, new PathComparator());
-			return path != null;
+			if(actionlist.isEmpty()) return false;
+			actions = Collections.min(actionlist, new ActionListComparator());
+			return actions != null;
 		}
 
 		@Override
 		public List<Integer> generateActionSequence(AgentFuzzyBoots agent) {
-			List<Integer> sequence = getActionSequenceForPath(path, agent);
-			sequence.remove(sequence.size()-1);
-			sequence.add(Action.SHOOT);
-			return sequence;
+			actions.remove(actions.size()-1);
+			actions.add(Action.SHOOT);
+			return actions;
 		}
 
 	}
 
-	private static class PathComparator implements Comparator<List<InternalCell>> {
+	private static class ActionListComparator implements Comparator<List<Integer>> {
 		@Override
-		public int compare(List<InternalCell> path1, List<InternalCell> path2) {
-			if(path1 == null) return 1;
-			else if (path2 == null) return -1;
-			else return Integer.valueOf(path1.size()).compareTo(path2.size());
+		public int compare(List<Integer> actions1, List<Integer> actions2) {
+			if(actions1 == null) return 1;
+			else if (actions2 == null) return -1;
+			else return Integer.valueOf(actions1.size()).compareTo(actions2.size());
 		}
 	}
 	
