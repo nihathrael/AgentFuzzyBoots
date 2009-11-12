@@ -44,9 +44,11 @@ public class AgentFuzzyBoots extends AbstractAgent {
 	 */
 	private List<Integer> sequence = null;
 
-	private Goal[] goals = { new PickupGoldGoal(), new ShootWumpusGoal(),
-			new ExploreGoal(), new ReturnHomeGoal() };
-
+	//private Goal[] goals = { new PickupGoldGoal(), new ShootWumpusGoal(),
+	//		new ExploreGoal(), new ReturnHomeGoal() };
+	private Goal[] goals = { new PickupGoldGoal(),
+					new ExploreGoal(), new ReturnHomeGoal() };
+			
 	@Override
 	protected int chooseAction(Percepts p) {
 		updateCells(p);
@@ -146,32 +148,29 @@ public class AgentFuzzyBoots extends AbstractAgent {
 		ArrayList<Integer> ret = new ArrayList<Integer>();
 		InternalCell last = agent.currentCell;
 		int orientation = agent.currentOrientation;
+		int toDirection = Directions.EAST;
 		for (InternalCell cur : path) {
 			if (cur.position.x < last.position.x) {
-				for (int i = 0; i < Directions.getRequiredLeftTurns(
-						orientation, Directions.WEST) % 4; ++i) {
-					ret.add(Action.TURN_LEFT);
-				}
-				orientation = Directions.WEST;
+				toDirection = Directions.WEST;
 			} else if (cur.position.x > last.position.x) {
-				for (int i = 0; i < Directions.getRequiredRightTurns(
-						orientation, Directions.EAST) % 4; ++i) {
-					ret.add(Action.TURN_RIGHT);
-				}
-				orientation = Directions.EAST;
+				toDirection = Directions.EAST;
 			} else if (cur.position.y < last.position.y) {
-				for (int i = 0; i < Directions.getRequiredRightTurns(
-						orientation, Directions.NORTH) % 4; ++i) {
-					ret.add(Action.TURN_RIGHT);
-				}
-				orientation = Directions.NORTH;
+				toDirection = Directions.NORTH;
 			} else if (cur.position.y > last.position.y) {
-				for (int i = 0; i < Directions.getRequiredLeftTurns(
-						orientation, Directions.SOUTH) % 4; ++i) {
+				toDirection = Directions.SOUTH;
+			}
+			final int turnsleft = Directions.getRequiredLeftTurns(orientation, toDirection);
+			final int turnsright = Directions.getRequiredRightTurns(orientation, toDirection);
+			if(turnsleft < turnsright) {
+				for (int i = 0; i < turnsleft % 4; ++i) {
 					ret.add(Action.TURN_LEFT);
 				}
-				orientation = Directions.SOUTH;
+			} else {
+				for (int i = 0; i < turnsright % 4; ++i) {
+					ret.add(Action.TURN_RIGHT);
+				}
 			}
+			orientation = toDirection;
 			ret.add(Action.GOFORWARD);
 			last = cur;
 		}
